@@ -1,0 +1,5 @@
+.idea/
+node_modules/
+
+#Exclude tsc generated files
+build/*

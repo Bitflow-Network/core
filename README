@@ -1,0 +1,9 @@
+Code Structure:
+
+/src
+
+    /consensus - Code that validates blocks and transactions
+    /policy - code that manages policy for a particular node rather than the whole network in general (bans, etc.)
+    /messages - Data structures around messaging
+    /api - REST API
+    /primitives - Basic models (block, etc)
