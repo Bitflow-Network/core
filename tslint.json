@@ -4,5 +4,9 @@
     "exclude": [
       "**/*.json"
     ]
+  },
+  "rules": {
+    "no-floating-promises": true,
+    "no-console": "log"
   }
 }

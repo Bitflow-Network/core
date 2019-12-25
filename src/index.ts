@@ -1,12 +1,20 @@
-import { SHA256 } from 'crypto-js'
-import {Node} from "./node/node";
-import {Miner} from "./mining/miner";
+import { SHA256 } from 'crypto-js';
+import { Miner } from './mining/miner';
+import { Node } from './node/node';
+import { logger } from './util/log';
 
-console.log("Starting Node");
+logger.info('Starting Node');
 const node = new Node();
 
-console.log("Starting Miner");
-const miner = new Miner(node);
+const p = (async () => {
+  await node.start();
+})();
 
-console.log("Beginning Mining");
-miner.searchForBlock(6);
+const mine = true;
+if (mine) {
+  logger.info('Starting Miner');
+  const miner = new Miner(node);
+
+  logger.info('Beginning Mining');
+  miner.searchForBlock();
+}

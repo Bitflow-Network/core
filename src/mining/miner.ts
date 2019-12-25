@@ -1,24 +1,44 @@
-import {NodeService} from "../node/nodeService";
+import { NodeService } from '../node/nodeService';
+import { logger } from '../util/log';
+import {BlockFound} from "../messages/message";
+import math = require("mathjs");
+import {Block} from "../blockchain/primitives/block";
 
 export class Miner {
-    constructor(nodeService: NodeService) {
-        this.nodeService = nodeService;
-    }
+  constructor(nodeService: NodeService) {
+    this.nodeService = nodeService;
+  }
 
-    nodeService: NodeService;
+  private readonly nodeService: NodeService;
 
-    searchForBlock(difficulty: number) {
-        const template = this.nodeService.getBlockTemplate();
-        let hash = '';
-        let nonce = 0n;
+  searchForBlock() {
+    const self = this;
 
-        while (hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")) {
-            template.nonce  = nonce;
-            nonce += 1n;
-            hash = template.calculateHash();
-            console.log(`Tried Nonce (${nonce}): ${hash}`);
-        }
+    const template = this.nodeService.getBlockTemplate();
+    let hash = '';
+    let nonce = math.bignumber(0);
 
-        console.log("BLOCK MINED: ", template);
-    }
+    const difficulty = this.nodeService.getDifficulty();
+
+    do {
+      nonce = nonce.plus(1);
+      template.nonce = nonce;
+      hash = template.calculateHash();
+      logger.debug(`Tried Nonce (${nonce}): ${hash}`);
+    } while (hash.substring(0, difficulty) !== new Array(difficulty + 1).join('0'));
+
+    // while (
+    //   hash.substring(0, difficulty) !== new Array(difficulty + 1).join('0')
+    // ) {
+    //   template.nonce = nonce;
+    //   nonce = nonce.plus(1);
+    //   hash = template.calculateHash();
+    //   logger.debug(`Tried Nonce (${nonce}): ${hash}`);
+    // }
+
+    const newBlock = new Block(template.previousHash, template.timestamp, template.data, nonce);
+
+    logger.info('BLOCK MINED: ', newBlock);
+    self.nodeService.submitBlock(newBlock);
+  }
 }
